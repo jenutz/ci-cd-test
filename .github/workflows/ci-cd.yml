@@ -28,13 +28,20 @@ jobs:
       - name: Run Bandit SAST Scan
         run: |
           pip install bandit
-          bandit -r . --severity-level high --confidence-level high -f json -o bandit_results.json || true
+          bandit -r . -f json -o bandit_results.json || true
           # Опции:# -r - рекурсивно сканировать текущую директорию
           # --severity-level high - показывать только уязвимости уровня HIGH
           # --confidence-level high - показывать только уязвимости с высоким уровнем достоверности
           # -f json -o ... - вывести результат в файл в формате JSON
           # || true - это костыль, чтобы шаг не "падал" при найденных уязвимостях.
           # Мы обработаем результат на следующем шаге.
+
+      # Шаг 4.0.5: Сохраняем результат
+      - name: Upload Bandit report
+        uses: actions/upload-artifact@v4
+        with:
+          name: bandit-results
+          path: bandit_results.json
       
       # Шаг 4.1: Анализируем отчет Bandit и "валим" пайплайн при критических уязвимостях
       - name: Check Bandit Results
